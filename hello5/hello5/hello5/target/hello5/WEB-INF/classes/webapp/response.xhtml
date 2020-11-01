@@ -1,0 +1,84 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:t="http://example.com/tags"
+	xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+	<title>Welcome Page</title>
+</h:head>
+<h:body>
+	<h2>JSF 2.0 + Ajax Hello World Example</h2>
+
+	<h:form>
+		<h:inputText id="name" value="#{testBean.text}">
+			<f:validateLongRange minimum="0" maximum="1" />
+		</h:inputText>
+		<h:inputText id="name2" value="#{testBean.text2}">
+
+			<f:ajax event="keyup" listener="#{testBean.makeSomeThing}"
+				render="output" />
+		</h:inputText>
+
+		<h:commandButton value="Welcome Me">
+			<f:ajax event="click" execute="@form" render="output2 output" />
+		</h:commandButton>
+
+		<h2>
+			<h:outputText id="output2" value="#{testBean.text2}" />
+		</h2>
+		<h2>
+			<h:outputText id="output1" value="#{testBean.text}" />
+		</h2>
+		<h:message
+			style="color: red;
+     font-family: 'New Century Schoolbook', serif;
+     font-style: oblique;
+     text-decoration: overline"
+			id="errors1" for="name" />
+
+	</h:form>
+
+	<f:view afterPhase="#{lifeCycleListener.afterPhase}"
+		beforePhase="#{lifeCycleListener.beforePhase}">
+		<h:panelGroup>
+			<h:messages id="messages" binding="#{myBean.messageComponent}" />
+		</h:panelGroup>
+		<h:form>
+			<h:inputText binding="#{myBean.inputComponent}"
+				value="#{myBean.inputValue}"
+				valueChangeListener="#{myBean.inputChanged}"
+				conveter="dateConverter">
+				<f:converter converterId="myConverter" />
+				<f:validator validatorId="myValidator" />
+				<f:ajax event="change" render="messages" />
+			</h:inputText>
+			<h:commandButton value="submit" action="#{myBean.action}" />
+			<h:outputText binding="#{myBean.outputComponent}"
+				value="#{myBean.outputValue}" />
+		</h:form>
+	</f:view>
+	<t:helloComponent message="#{helloBean.message}"
+		time="#{helloBean.time}" />
+	<h:messages id="messages2" />
+	<h:outputText value="#{helloWorld.money}">
+		<f:convertNumber pattern="@####" />
+	</h:outputText>
+	<h:form>
+		<h:commandButton action="NewFile" value="Show All Employee"
+			id="submit">
+			<f:setPropertyActionListener target="#{requestScope.txt}"
+				value="JSF 2.0 User" />
+		</h:commandButton>
+	</h:form>
+	<h:form>
+		<h:outputText id="output1" value="#{helloWorld.txt}">
+		</h:outputText>
+		<h:commandButton id="submitButton" value="Submit" action="#{NewFile}">
+			<f:ajax event="click" listener="#{helloWorld.updateTxt}" render="output1"/>
+		</h:commandButton>
+	</h:form>
+</h:body>
+</html>

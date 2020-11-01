@@ -1,0 +1,109 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+	<title>JSF tutorial</title>
+</h:head>
+
+
+<h:body>
+	<h2>DepartmentForm</h2>
+	<h:form id="todoForm">
+		<h:panelGroup>
+			<h:message  />
+		</h:panelGroup>
+		<table>
+			<tr>
+				<td><h:outputText value="Department Code" /></td>
+				<td><h:inputText id="code" value="#{departmentBean.name}"
+						required="true">
+						<f:validator validatorId="NameValidator" />
+					</h:inputText></td>
+			</tr>
+			<tr>
+				<td><h:outputText value="Department Description" /></td>
+				<td><h:inputText id="description" value="#{departmentBean.description}" /></td>
+			</tr>
+			<tr>
+				<td><h:outputText value="Department Name" /></td>
+				<td><h:inputText id="name" value="#{departmentBean.code}" /></td>
+			</tr>
+			<tr>
+				<td><h:commandButton action="#{departmentBean.addDepartment}"
+						value="add">
+						<f:ajax execute="@form todoForm" render="@form todoForm :todoTable" />
+					</h:commandButton></td>
+				<td><h:commandButton value="Clear Validation"
+						action="/indexajax.xhtml" immediate="true" /></td>
+			</tr>
+		</table>
+		
+	</h:form>
+	<h:form id="todoForm2">
+		<h:dataTable id="todoTable" value="#{departmentBean.departments}"
+			var="department" styleClass="departmentTable"
+			headerClass="departmentTableHeader"
+			rowClasses="departmentTableOddRow,departmentTableEvenRow">
+			<h:column>
+				<f:facet name="header">Name</f:facet>
+				<h:inputText value="#{department.name}" rendered="#{department.canEdit}" />
+				<h:outputText value="#{department.name}"
+					rendered="#{not department.canEdit}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">Code</f:facet>
+				<h:inputText value="#{department.code}" rendered="#{department.canEdit}" />
+				<h:outputText value="#{department.code}"
+					rendered="#{not department.canEdit}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">Description</f:facet>
+				<h:inputTextarea value="#{department.description}" cols="30" rows="10" rendered="#{department.canEdit}" />
+				<h:outputText value="#{department.description}"
+					rendered="#{not department.canEdit}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">Action</f:facet>
+				<h:commandButton value="Edit"
+					action="#{departmentBean.editDepartment(department)}"
+					rendered="#{not department.canEdit}">
+				</h:commandButton>
+				<h:commandButton value="Save"
+					action="#{departmentBean.saveDepartments(department)}"
+					rendered="#{department.canEdit}">
+				</h:commandButton>
+			</h:column>
+			<h:column>
+				<h:commandButton value="Cancel"
+					action="#{departmentBean.cancelEdit(department)}"
+					rendered="#{department.canEdit}">
+				</h:commandButton>
+			</h:column>
+			<h:column>
+				<h:commandButton value="Delete" id="remove"
+					action="#{departmentBean.deleteDepartment(department)}"
+					onclick="return confirm	('Are you sure?')">
+					<f:ajax execute="@form todoForm2" render="@form todoForm2:todoTable" />
+				</h:commandButton>
+			</h:column>
+		</h:dataTable>
+	</h:form>
+	<h:form>
+		<h:inputText binding="#{myBean.inputComponent}"
+			value="#{myBean.inputValue}"
+			valueChangeListener="#{myBean.inputChanged}">
+			<f:converter converterId="myConverter" />
+			<f:validator validatorId="myValidator" />
+		</h:inputText>
+		<h:commandButton value="submit" action="#{myBean.action}" />
+		<h:outputText binding="#{myBean.outputComponent}"
+			value="#{myBean.outputValue}" />
+		<h:messages />
+	</h:form>
+</h:body>
+</html>

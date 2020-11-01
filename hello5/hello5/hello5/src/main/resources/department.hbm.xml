@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD//EN"
+"http://www.hibernate.org/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="entities">
+	<class name="Department" table="department">
+		<id name="id" column="id" type="int">
+		</id>
+		<property name="name" type="string">
+			<column name="department_name"  />
+		</property>
+		<property name="code" type="string">
+			<column name="department_code" />
+		</property>
+		<property name="description" type="string">
+			<column name="department_description" />
+		</property>
+	</class>
+</hibernate-mapping>

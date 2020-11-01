@@ -1,0 +1,128 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+
+<h:form>
+	<p:messages style="color:red" />
+	<table>
+		<tr>
+			<td><h:outputText value="Name" /></td>
+			<td><p:inputText id="name" value="#{employeeBean.name}"
+					required="true">
+					<f:validator validatorId="NameValidator" />
+				</p:inputText></td>
+		</tr>
+		<tr>
+			<td><h:outputText value="Age" /></td>
+			<td><p:inputText id="age" value="#{employeeBean.age}" /></td>
+		</tr>
+		<tr>
+			<td><h:outputText value="Gender" /></td>
+			<td><h:selectOneRadio value="#{employeeBean.gender}"
+					requiredMessage="Select your gender">
+					<f:selectItem itemValue="Male" itemLabel="Male" />
+					<f:selectItem itemValue="Female" itemLabel="Female" />
+				</h:selectOneRadio></td>
+		</tr>
+		<tr>
+			<td><h:outputText value="DOB" /></td>
+			<td><p:inputText id="DOB" value="#{employeeBean.DOB}"
+					requiredMessage="Your Date of Birth">
+					<f:converter converterId="dateConverter" />
+				</p:inputText></td>
+		</tr>
+		<tr>
+			<td><h:outputText value="Department" /></td>
+			<td><h:selectOneMenu value="#{employeeBean.department}">
+					<f:selectItem itemValue="Marketing" itemLabel="Marketing" />
+					<f:selectItem itemValue="Sales" itemLabel="Sales" />
+				</h:selectOneMenu></td>
+		</tr>
+		<tr>
+			<td><p:commandButton action="#{employeeBean.addEmployee}"
+					value="add" update="@form :todoForm:todoTable">
+				</p:commandButton></td>
+			<td><p:commandButton value="Clear Validation"
+					action="/indexprimeface.xhtml" immediate="true" /></td>
+		</tr>
+	</table>
+
+</h:form>
+<h:form id="todoForm">
+	<p:dataTable id="todoTable" value="#{employeeBean.employees}"
+	
+		paginator="true" row="3"
+		var="employee"
+		styleClass="employeeTable" headerClass="employeeTableHeader"
+		rowClasses="employeeTableOddRow,employeeTableEvenRow">
+		<p:column>
+			<f:facet name="header">Name</f:facet>
+			<p:inputText value="#{employee.name}" rendered="#{employee.canEdit}" />
+			<h:outputText value="#{employee.name}"
+				rendered="#{not employee.canEdit}" />
+		</p:column>
+		<p:column>
+			<f:facet name="header">Age</f:facet>
+			<p:inputText value="#{employee.age}" rendered="#{employee.canEdit}" />
+			<h:outputText value="#{employee.age}"
+				rendered="#{not employee.canEdit}" />
+		</p:column>
+		<p:column>
+			<f:facet name="header">Gender</f:facet>
+			<h:selectOneRadio value="#{employee.gender}"
+				requiredMessage="Select your gender" rendered="#{employee.canEdit}">
+				<f:selectItem itemValue="Male" itemLabel="Male" />
+				<f:selectItem itemValue="Female" itemLabel="Female" />
+			</h:selectOneRadio>
+			<h:outputText value="#{employee.gender}"
+				rendered="#{not employee.canEdit}" />
+		</p:column>
+		<p:column>
+			<f:facet name="header">DOB</f:facet>
+			<p:inputText value="#{employee.DOB}" rendered="#{employee.canEdit}" />
+			<h:outputText value="#{employee.DOB}"
+				rendered="#{not employee.canEdit}" />
+		</p:column>
+		<p:column>
+			<f:facet name="header">Department</f:facet>
+			<h:selectOneMenu value="#{employeeBean.department}"
+				rendered="#{employee.canEdit}">
+				<f:selectItem itemValue="Marketing" itemLabel="Marketing" />
+				<f:selectItem itemValue="Sales" itemLabel="Sales" />
+			</h:selectOneMenu>
+			<h:outputText value="#{employee.department}"
+				rendered="#{not employee.canEdit}" />
+		</p:column>
+		<p:column>
+			<f:facet name="header">Action</f:facet>
+			<p:commandButton value="Edit"
+				action="#{employeeBean.editEmployee(employee)}"
+				rendered="#{not employee.canEdit}" update="todoTable">
+			</p:commandButton>
+			<p:commandButton value="Save"
+				action="#{employeeBean.saveEmployees(employee)}"
+				rendered="#{employee.canEdit}" update="todoTable">
+			</p:commandButton>
+		</p:column>
+		<p:column>
+			<p:commandButton value="Cancel"
+				action="#{employeeBean.cancelEdit(employee)}"
+				rendered="#{employee.canEdit}" update="todoTable">
+			</p:commandButton>
+		</p:column>
+		<p:column>
+			<p:commandButton value="Delete" id="remove"
+				action="#{employeeBean.deleteEmployee(employee)}" update="todoTable" ajax="true">
+			</p:commandButton>
+
+		</p:column>
+	</p:dataTable>
+</h:form>
+
+</html>
