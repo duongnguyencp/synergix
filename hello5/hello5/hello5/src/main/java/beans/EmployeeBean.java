@@ -5,8 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Conversation;
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -15,15 +21,22 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Scope;
 
 import dao.EmployeeDAO;
 import entities.Department;
 import entities.Employee;
+import services.CrudService;
 import services.DepartmentService;
+import services.EmployeeQualifier;
 import services.EmployeeService;
+import services.RandomQualifier;
+import util.HibernateUtil;
 
-@ManagedBean(name="employeeBean",eager=true)
-@ViewScoped
+@Named
+@ConversationScoped
 public class EmployeeBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String name;
@@ -32,14 +45,29 @@ public class EmployeeBean implements Serializable {
 	private String gender;
 	private Date DOB;
 	private static  List<Employee> employees ;
-	private EmployeeService employeeService=new EmployeeService();
+	@Inject
+	private Conversation conversation;
+	@Inject @EmployeeQualifier private CrudService employeeService;
 	private Employee employeeForEdit=new Employee();
+	@Inject @RandomQualifier int numRandom;
 	@PostConstruct
 	public void init() {
+		initConversation();
 		employees=employeeService.getEmployees();
+		System.out.println("numRandom"+numRandom+" "+employees.size());
+	
 	}
-	int number=10;
-
+	public void initConversation() {
+		System.out.println("employeeBean Bean: initConversation()");
+		boolean isTransient=conversation.isTransient();
+		boolean isPostBack=FacesContext.getCurrentInstance().isPostback();
+		System.out.println(isPostBack+""+isTransient);
+		if(!FacesContext.getCurrentInstance().isPostback()&&conversation.isTransient()) {
+			conversation.begin();
+			System.out.print("employee Bean: Conversation begined.....");
+		
+		}
+	}
 	public List<Employee> getEmployees() {
 		return employees;
 	}
@@ -52,6 +80,12 @@ public class EmployeeBean implements Serializable {
 							"Name is duplicated");
 			throw new ValidatorException(msg);
 		}
+	}
+	public int getNumRandom() {
+		return numRandom;
+	}
+	public void setNumRandom(int numRandom) {
+		this.numRandom = numRandom;
 	}
 	public void addEmployee() {
 		System.out.println("addEmployee");
@@ -116,6 +150,18 @@ public class EmployeeBean implements Serializable {
 	}
 	public void setDOB(Date dOB) {
 		DOB = dOB;
+	}
+	@PreDestroy
+    public void dispose() {
+        employees=null;
+        employeeService=null;
+        boolean isTransient=conversation.isTransient();
+        System.out.println(this.getClass().getAnnotation(Scope.class));
+        System.out.println("EmployeeBean: PreDestroy................");
+    }
+	public String goToPage() {
+		
+		return "NewFile1";
 	}
 	
 }

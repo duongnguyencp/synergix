@@ -1,13 +1,20 @@
 package services;
 
 import java.util.List;
+import java.util.Random;
+
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Qualifier;
 
 import dao.DepartmentDAO;
 import dao.EmployeeDAO;
 import entities.Department;
 import entities.Employee;
-
-public class EmployeeService {
+@EmployeeQualifier
+@RequestScoped
+public class EmployeeService implements CrudService{
 	private static  List<Employee> employees;
 	private EmployeeDAO employeeDAO=new EmployeeDAO();
 	public EmployeeService() {
@@ -55,4 +62,5 @@ public class EmployeeService {
 		}
 		return false;
 	}
+	
 }

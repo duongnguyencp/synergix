@@ -7,168 +7,173 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core">
-<h:head>
-	<title>#{helloWorld.txt}</title>
-	<title>JSF tutorial</title>
-</h:head>
+<f:view afterPhase="#{lifeCycleListener.afterPhase}"
+	beforePhase="#{lifeCycleListener.beforePhase}">
 
-<h:body>
-	<ui:composition template="templates/common.xhtml">
-		<ui:define name="content">
-			<h2>DataTable Example</h2>
-			<h:form id="todoForm">
-				<h:panelGroup id="messages">
+	<h:head>
+		<title>#{helloWorld.txt}</title>
+		<title>JSF tutorial</title>
+	</h:head>
+
+	<h:body>
+		<ui:composition template="templates/common.xhtml">
+			<ui:define name="content">
+				<h2>DataTable Example</h2>
+				<h:form id="todoForm">
+					<h:panelGroup id="messages">
+						<p:messages style="color:red;" />
+					</h:panelGroup>
+					<table>
+
+						<tr>
+							<td><h:outputText value="Name" /></td>
+							<td><p:inputText id="name" value="#{employeeBean.name}">
+									<f:validator validatorId="NameValidator" />
+									<p:ajax event="valueChange" process="name age gender dobID"
+										update="messages" />
+								</p:inputText></td>
+						</tr>
+						<tr>
+							<td><h:outputText value="Age" /></td>
+							<td><p:inputText id="age" value="#{employeeBean.age}">
+									<f:convertNumber longOnly="true" />
+									<f:validator validatorId="ageValidator" />
+									<p:ajax event="valueChange" process="name age gender dobID"
+										update="messages" />
+								</p:inputText></td>
+						</tr>
+						<tr>
+							<td><h:outputText value="Gender" /></td>
+							<td><p:selectOneRadio id="gender"
+									value="#{employeeBean.gender}"
+									requiredMessage="Select your gender" required="true">
+									<f:selectItem itemValue="Male" itemLabel="Male" />
+									<f:selectItem itemValue="Female" itemLabel="Female" />
+									<p:ajax event="valueChange" process="name age gender dobID"
+										update="messages" />
+								</p:selectOneRadio></td>
+						</tr>
+						<tr>
+							<td><h:outputText value="DOB" /></td>
+							<td><p:inputText id="dobID" value="#{employeeBean.DOB}"
+									requiredMessage="Your Date of Birth">
+									<f:converter converterId="dateConverter" />
+									<f:validator validatorId="dateValidator" />
+									<p:ajax event="valueChange" process="name age gender dobID"
+										update="messages" />
+								</p:inputText></td>
+						</tr>
+						<tr>
+							<td><h:outputText value="Department" /></td>
+							<td><p:selectOneMenu value="#{employeeBean.department}"
+									converter="#{departmentConverter}">
+									<f:selectItems value="#{departmentBean.departments}"
+										var="department" itemValue="#{department}"
+										itemLabel="#{department.name}" />
+								</p:selectOneMenu></td>
+						</tr>
+						<tr>
+
+							<td><p:commandButton action="#{employeeBean.addEmployee}"
+									value="add" update=":todoForm2:todoTable messages">
+								</p:commandButton></td>
+							<td><p:commandButton value="Clear Validation"
+									action="/employeePage" immediate="true" /></td>
+						</tr>
+					</table>
+				</h:form>
+				<h:panelGroup id="messages2">
 					<p:messages style="color:red;" />
 				</h:panelGroup>
-				<table>
+				<h:form id="todoForm2">
+					<p:dataTable id="todoTable" value="#{employeeBean.employees}"
+						var="employee" paginator="true" rows="6"
+						styleClass="employeeTable" headerClass="employeeTableHeader"
+						rowClasses="employeeTableOddRow,employeeTableEvenRow">
 
-					<tr>
-						<td><h:outputText value="Name" /></td>
-						<td><p:inputText id="name" value="#{employeeBean.name}">
-								<f:validator validatorId="NameValidator" />
-								<p:ajax event="valueChange" process="name age gender dobID" update="messages" />
-							</p:inputText></td>
-					</tr>
-					<tr>
-						<td><h:outputText value="Age" /></td>
-						<td><p:inputText id="age" value="#{employeeBean.age}">
+						<p:column sortBy="#{employee.name}" filterBy="#{employee.name}"
+							headerText="Name">
+							<p:inputText id="nameTable" value="#{employee.name}"
+								rendered="#{employee.canEdit}">
+								<f:validator validatorId="NameValidator2" />
+								<p:ajax event="valueChange" update="messages2" />
+							</p:inputText>
+							<h:outputText value="#{employee.name}"
+								rendered="#{not employee.canEdit}" />
+						</p:column>
+						<p:column sortBy="#{employee.age}" headerText="Age">
+							<p:inputText id="ageTable" value="#{employee.age}"
+								rendered="#{employee.canEdit}">
 								<f:convertNumber longOnly="true" />
 								<f:validator validatorId="ageValidator" />
-								<p:ajax event="valueChange" process="name age gender dobID" update="messages" />
-							</p:inputText></td>
-					</tr>
-					<tr>
-						<td><h:outputText value="Gender" /></td>
-						<td><p:selectOneRadio id="gender"
-								value="#{employeeBean.gender}"
-								requiredMessage="Select your gender" required="true">
+								<p:ajax event="valueChange" update="messages2" />
+							</p:inputText>
+							<h:outputText value="#{employee.age}"
+								rendered="#{not employee.canEdit}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">Gender</f:facet>
+							<p:selectOneRadio value="#{employee.gender}" id="genderTable"
+								requiredMessage="Select your gender"
+								rendered="#{employee.canEdit}" required="true">
 								<f:selectItem itemValue="Male" itemLabel="Male" />
 								<f:selectItem itemValue="Female" itemLabel="Female" />
-								<p:ajax event="valueChange" process="name age gender dobID"  update="messages" />
-							</p:selectOneRadio></td>
-					</tr>
-					<tr>
-						<td><h:outputText value="DOB" /></td>
-						<td><p:inputText id="dobID" value="#{employeeBean.DOB}"
-								requiredMessage="Your Date of Birth">
+								<p:ajax event="valueChange" update="messages2" />
+							</p:selectOneRadio>
+							<h:outputText value="#{employee.gender}"
+								rendered="#{not employee.canEdit}" />
+
+						</p:column>
+						<p:column sortBy="#{employee.DOB}" headerText="DOB">
+							<p:inputText id="dobTable" value="#{employee.DOB}"
+								rendered="#{employee.canEdit}">
 								<f:converter converterId="dateConverter" />
 								<f:validator validatorId="dateValidator" />
-								<p:ajax event="valueChange" process="name age gender dobID"
-									update="messages" />
-							</p:inputText></td>
-					</tr>
-					<tr>
-						<td><h:outputText value="Department" /></td>
-						<td><p:selectOneMenu value="#{employeeBean.department}"
-								converter="#{departmentConverter}">
+								<p:ajax event="valueChange" update="messages2" />
+							</p:inputText>
+							<h:outputText value="#{employee.DOB}"
+								rendered="#{not employee.canEdit}">
+								<f:converter converterId="dateConverter" />
+							</h:outputText>
+						</p:column>
+						<p:column>
+							<f:facet name="header">Department</f:facet>
+							<p:selectOneMenu value="#{employeeBean.department}"
+								converter="#{departmentConverter}"
+								rendered="#{employee.canEdit}">
 								<f:selectItems value="#{departmentBean.departments}"
 									var="department" itemValue="#{department}"
 									itemLabel="#{department.name}" />
-							</p:selectOneMenu></td>
-					</tr>
-					<tr>
+								<p:ajax event="valueChange" update="messages2" />
+							</p:selectOneMenu>
+							<h:outputText value="#{employee.department.name}"
+								rendered="#{not employee.canEdit}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">Action</f:facet>
 
-						<td><f:view afterPhase="#{lifeCycleListener.afterPhase}"
-								beforePhase="#{lifeCycleListener.beforePhase}">
-								<p:commandButton action="#{employeeBean.addEmployee}"
-									value="add" update=":todoForm2:todoTable messages">
-								</p:commandButton>
-							</f:view></td>
-						<td><p:commandButton value="Clear Validation"
-								action="/employeePage" immediate="true" /></td>
-					</tr>
-				</table>
-			</h:form>
-			<h:panelGroup id="messages2">
-				<p:messages style="color:red;" />
-			</h:panelGroup>
-			<h:form id="todoForm2" >
-				<p:dataTable id="todoTable"  value="#{employeeBean.employees}"
-					var="employee" paginator="true" rows="6" styleClass="employeeTable"
-					headerClass="employeeTableHeader"
-					rowClasses="employeeTableOddRow,employeeTableEvenRow">
-
-					<p:column sortBy="#{employee.name}" filterBy="#{employee.name}"
-						headerText="Name">
-						<p:inputText id="nameTable" value="#{employee.name}"
-							rendered="#{employee.canEdit}">
-							<f:validator validatorId="NameValidator2" />
-							<p:ajax event="valueChange" update="messages2" />
-						</p:inputText>
-						<h:outputText value="#{employee.name}"
-							rendered="#{not employee.canEdit}" />
-					</p:column>
-					<p:column sortBy="#{employee.age}" headerText="Age">
-						<p:inputText id="ageTable" value="#{employee.age}"
-							rendered="#{employee.canEdit}">
-							<f:convertNumber longOnly="true" />
-							<f:validator validatorId="ageValidator" />
-							<p:ajax event="valueChange" update="messages2" />
-						</p:inputText>
-						<h:outputText value="#{employee.age}"
-							rendered="#{not employee.canEdit}" />
-					</p:column>
-
-					<p:column>
-						<f:facet name="header">Gender</f:facet>
-						<p:selectOneRadio value="#{employee.gender}" id="genderTable"
-							requiredMessage="Select your gender"
-							rendered="#{employee.canEdit}" required="true">
-							<f:selectItem itemValue="Male" itemLabel="Male" />
-							<f:selectItem itemValue="Female" itemLabel="Female" />
-							<p:ajax event="valueChange" update="messages2" />
-						</p:selectOneRadio>
-						<h:outputText value="#{employee.gender}"
-							rendered="#{not employee.canEdit}" />
-
-					</p:column>
-					<p:column sortBy="#{employee.DOB}" headerText="DOB">
-						<p:inputText id="dobTable" value="#{employee.DOB}"
-							rendered="#{employee.canEdit}">
-							<f:converter converterId="dateConverter" />
-							<f:validator validatorId="dateValidator" />
-							<p:ajax event="valueChange" update="messages2" />
-						</p:inputText>
-						<h:outputText value="#{employee.DOB}"
-							rendered="#{not employee.canEdit}">
-							<f:converter converterId="dateConverter" />
-						</h:outputText>
-					</p:column>
-					<p:column>
-						<f:facet name="header">Department</f:facet>
-						<p:selectOneMenu value="#{employeeBean.department}"
-							converter="#{departmentConverter}" rendered="#{employee.canEdit}">
-							<f:selectItems value="#{departmentBean.departments}"
-								var="department" itemValue="#{department}"
-								itemLabel="#{department.name}" />
-							<p:ajax event="valueChange" update="messages2" />
-						</p:selectOneMenu>
-						<h:outputText value="#{employee.department.name}"
-							rendered="#{not employee.canEdit}" />
-					</p:column>
-					<p:column>
-						<f:facet name="header">Action</f:facet>
-
-						<p:commandButton value="Edit"  id="btnEdit"
-							action="#{employeeBean.editEmployee(employee)}"
-							rendered="#{not employee.canEdit}" update="todoTable messages2">
-						</p:commandButton>
-						<p:commandButton value="Save" id="btnSave"
-							action="#{employeeBean.saveEmployees(employee)}"
-							rendered="#{employee.canEdit}" update="todoTable messages2">
-						</p:commandButton>
-						<p:commandButton value="Cancel"   id="btnCancel"
-							action="#{employeeBean.cancelEdit(employee)}"
-							rendered="#{employee.canEdit}" update="todoTable messages2">
-						</p:commandButton>
-						<p:commandButton value="Delete" id="remove"
-							action="#{employeeBean.deleteEmployee(employee)}"
-							onclick="return confirm	('Are you sure?')" update="todoTable">
-						</p:commandButton>
-					</p:column>
-				</p:dataTable>
-			</h:form>
-		</ui:define>
-	</ui:composition>
-</h:body>
+							<p:commandButton value="Edit" id="btnEdit"
+								action="#{employeeBean.editEmployee(employee)}"
+								rendered="#{not employee.canEdit}" update="todoTable messages2">
+							</p:commandButton>
+							<p:commandButton value="Save" id="btnSave"
+								action="#{employeeBean.saveEmployees(employee)}"
+								rendered="#{employee.canEdit}" update="todoTable messages2">
+							</p:commandButton>
+							<p:commandButton value="Cancel" id="btnCancel"
+								action="#{employeeBean.cancelEdit(employee)}"
+								rendered="#{employee.canEdit}" update="todoTable messages2">
+							</p:commandButton>
+							<p:commandButton value="Delete" id="remove"
+								action="#{employeeBean.deleteEmployee(employee)}"
+								onclick="return confirm	('Are you sure?')" update="todoTable">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</h:form>
+			</ui:define>
+		</ui:composition>
+	</h:body>
+</f:view>
 </html>
