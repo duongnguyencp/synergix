@@ -7,7 +7,6 @@ import javax.faces.bean.RequestScoped;
 
 import dao.DepartmentDAO;
 import entities.Department;
-@ManagedBean 
 @RequestScoped
 public class DepartmentService {
 	DepartmentDAO departmentDao=new DepartmentDAO();

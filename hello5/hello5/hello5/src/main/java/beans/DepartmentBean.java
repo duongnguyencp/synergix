@@ -5,23 +5,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.Conversation;
+import javax.enterprise.context.ConversationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import dao.DepartmentDAO;
 import entities.Department;
 import entities.Employee;
+import services.CrudService;
 import services.DepartmentService;
+import services.EmployeeQualifier;
+import services.EmployeeService;
 
-@ManagedBean(name="departmentBean",eager=true)
-@ViewScoped
+@Named
+@ConversationScoped
 public class DepartmentBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private String description;
 	private String code;
 	private static  List<Department> departments ;
+	@Inject
+	private Conversation conversation;
+	@Inject @EmployeeQualifier private CrudService employeeService;
 	DepartmentDAO departmentDao=new DepartmentDAO();
 	private DepartmentService departmentService=new DepartmentService();
 	@PostConstruct
@@ -30,6 +41,15 @@ public class DepartmentBean implements Serializable {
 		description="";
 		code="";
 		departments=departmentDao.getListDepartment();
+		initConversation();
+		
+	}
+	public void initConversation() {
+		boolean isTransient=conversation.isTransient();
+		boolean isPostBack=FacesContext.getCurrentInstance().isPostback();
+		if(!FacesContext.getCurrentInstance().isPostback()&&conversation.isTransient()) {
+			conversation.begin();
+		}
 	}
 	public List<Department> getDepartments() {
 		return departmentService.getDepartments();
@@ -52,6 +72,9 @@ public class DepartmentBean implements Serializable {
 	public void saveDepartments(Department department) {
 		departmentService.saveDepartments(department);
 	}
+	public List<Employee> getEmployeeEachDepartment(String name) {
+		return ((EmployeeService)employeeService).getEmployeeByDepartment(name);
+	}
 	public String getName() {
 		return name;
 	}
@@ -70,5 +93,4 @@ public class DepartmentBean implements Serializable {
 	public void setCode(String code) {
 		this.code = code;
 	}
-	
 }

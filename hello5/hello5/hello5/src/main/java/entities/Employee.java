@@ -3,19 +3,19 @@ package entities;
 import java.io.Serializable;
 
 import java.util.Date;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 @Entity
 @Table(name = "employee")
+@NamedQuery(name="findAllEmployeeByName",query="SELECT emp FROM Employee emp where emp.name=:name")
 public class Employee implements Serializable{
 	/**
 	 * 
