@@ -1,11 +1,12 @@
 package entities;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 
 
 import javax.persistence.Entity;
-
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 
 import javax.persistence.GenerationType;
@@ -17,6 +18,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 @Entity
 @Table(name = "department")
@@ -32,12 +35,12 @@ public class Department  implements Serializable{
 	private String name;
 	@Column(name = "department_description")
 	private String description;
-	@OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name="department_id")
-    private Set<Employee> employees;
+	@OneToMany(mappedBy="department",cascade=CascadeType.ALL)
+    private List<Employee> employees;
 	@Transient
 	private boolean canEdit;
 	public Department() {
+		employees=new ArrayList<Employee>();
 	}
 	
 	public Department(String code, String name, String description) {
@@ -78,11 +81,11 @@ public class Department  implements Serializable{
 		this.description = description;
 	}
 
-	public Set<Employee> getEmployees() {
+	public List<Employee> getEmployees() {
 		return employees;
 	}
 
-	public void setEmployees(Set<Employee> employees) {
+	public void setEmployees(List<Employee> employees) {
 		this.employees = employees;
 	}
 	@Override

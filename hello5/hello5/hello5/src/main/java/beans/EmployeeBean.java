@@ -94,6 +94,9 @@ public class EmployeeBean implements Serializable {
 		employees.add(employee);
 		
 	}
+	public List<Employee> getEmployeeEachDepartment(String name) {
+		return ((EmployeeService)employeeService).getEmployeeByDepartment(name);
+	}
 	public void deleteEmployee(Employee employee) {
 		employees.remove(employee);
 		employeeService.deleteEmployee(employee);

@@ -13,7 +13,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import demoOTO.CustomerRecord;
-import entities.Person;
 import util.JPAUtil;
 
 @Entity

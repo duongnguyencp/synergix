@@ -7,9 +7,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,8 +37,9 @@ public class DepartmentBean implements Serializable {
 		name="";
 		description="";
 		code="";
-		departments=departmentDao.getListDepartment();
+		departments=departmentService.getDepartments();
 		initConversation();
+		getEmployeeEachDepartment("sales");
 		
 	}
 	public void initConversation() {

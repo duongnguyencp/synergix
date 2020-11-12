@@ -2,41 +2,59 @@ package services;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
+import javax.transaction.UserTransaction;
 
 import dao.DepartmentDAO;
+import dao.EmployeeDAO;
 import entities.Department;
+import entities.Employee;
+import util.JPAUtil;
 @RequestScoped
 public class DepartmentService {
-	DepartmentDAO departmentDao=new DepartmentDAO();
-	private   List<Department> departments = departmentDao.getListDepartment();
+	private static  List<Department> departments;
+	EntityManagerFactory emf=JPAUtil.geEntityManagerFactory();
+	private  EntityManager entityManager;
+	@Resource
+	UserTransaction utx;
 	public Department find(int id) {
-		DepartmentDAO departmentDAO=new DepartmentDAO();
-		List<Department> lsDepartment=departmentDAO.getListDepartment();
-		for(Department d:lsDepartment) {
-			if(d.getId()==id) {
-				return d;
-			}
-		}
-		return null;
+		return entityManager.find(Department.class, id);
+	}
+	public DepartmentService() {
+		entityManager=emf.createEntityManager();
+		departments=getDepartments();
 	}
 	public List<Department> getDepartments() {
+		TypedQuery<Department> q=entityManager.createQuery("from Department",Department.class);
+		departments=q.getResultList();
 		return departments;
 	}
 	public void addDepartment(Department department) {
-		departmentDao.addDepartment(department);
+		try {
+			utx.begin();
+			entityManager.persist(department);
+			utx.commit();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		departments.add(department);
-		
 	}
 	public void deleteDepartment(Department department) {
 		departments.remove(department);
-		departmentDao.deleteDepartment(department.getId());
+		entityManager.getTransaction().begin();
+		Department department2=entityManager.find(Department.class, department.getId());
+		entityManager.remove(department2);
+		entityManager.getTransaction().commit();
 	}
 
 	public void editDepartment(Department department) {
-		for(Department e:departments) {
-			e.setCanEdit(false);
+		for(Department d:departments) {
+			d.setCanEdit(false);
 		}
 		department.setCanEdit(true);
 	}
@@ -44,8 +62,20 @@ public class DepartmentService {
 		department.setCanEdit(false);
 	}
 	public void saveDepartments(Department department) {
-		departments.set(departments.indexOf(department),department);
-		departmentDao.updateDepartment(department.getId(), department);
+		try {
+			departments.set(departments.indexOf(department),department);
+		
+		}
+		catch (Exception e) {
+			departments.get(0);
+			System.out.println();
+		}
+		entityManager.getTransaction().begin();
+		Department department2=entityManager.find(Department.class, department.getId());
+		department2.setName(department.getName());
+		department2.setDescription(department.getDescription());
+		department2.setCode(department.getCode());
+		entityManager.getTransaction().commit();
 		cancelEdit(department);
 	}
 }
