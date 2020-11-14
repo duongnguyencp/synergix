@@ -24,10 +24,12 @@ import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Scope;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-import dao.EmployeeDAO;
 import entities.Department;
 import entities.Employee;
+import services.CreateEM;
 import services.CrudService;
 import services.DepartmentService;
 import services.EmployeeQualifier;
@@ -47,9 +49,9 @@ public class EmployeeBean implements Serializable {
 	private static  List<Employee> employees ;
 	@Inject
 	private Conversation conversation;
-	@Inject @EmployeeQualifier private CrudService employeeService;
+	private EmployeeService employeeService=new EmployeeService();
 	private Employee employeeForEdit=new Employee();
-	@Inject @RandomQualifier int numRandom;
+	@Inject @RandomQualifier @RequestScoped int numRandom;
 	@PostConstruct
 	public void init() {
 		initConversation();
@@ -65,7 +67,6 @@ public class EmployeeBean implements Serializable {
 		if(!FacesContext.getCurrentInstance().isPostback()&&conversation.isTransient()) {
 			conversation.begin();
 			System.out.print("employee Bean: Conversation begined.....");
-		
 		}
 	}
 	public List<Employee> getEmployees() {

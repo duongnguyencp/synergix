@@ -11,7 +11,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import dao.DepartmentDAO;
 import entities.Department;
 import entities.Employee;
 import services.CrudService;
@@ -29,8 +28,7 @@ public class DepartmentBean implements Serializable {
 	private static  List<Department> departments ;
 	@Inject
 	private Conversation conversation;
-	@Inject @EmployeeQualifier private CrudService employeeService;
-	DepartmentDAO departmentDao=new DepartmentDAO();
+	 private EmployeeService employeeService=new EmployeeService();
 	private DepartmentService departmentService=new DepartmentService();
 	@PostConstruct
 	public void init() {
@@ -39,8 +37,6 @@ public class DepartmentBean implements Serializable {
 		code="";
 		departments=departmentService.getDepartments();
 		initConversation();
-		getEmployeeEachDepartment("sales");
-		
 	}
 	public void initConversation() {
 		boolean isTransient=conversation.isTransient();

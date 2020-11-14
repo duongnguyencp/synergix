@@ -2,32 +2,37 @@ package services;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 import javax.transaction.UserTransaction;
 
-import dao.DepartmentDAO;
-import dao.EmployeeDAO;
 import entities.Department;
 import entities.Employee;
 import util.JPAUtil;
 @RequestScoped
+@Named
 public class DepartmentService {
 	private static  List<Department> departments;
-	EntityManagerFactory emf=JPAUtil.geEntityManagerFactory();
+	@Inject @CreateEM
+	private EntityManagerFactory emf;
 	private  EntityManager entityManager;
-	@Resource
-	UserTransaction utx;
+	@PostConstruct
+	public void init() {
+		entityManager=emf.createEntityManager();
+		departments=getDepartments();
+	}
 	public Department find(int id) {
 		return entityManager.find(Department.class, id);
 	}
 	public DepartmentService() {
-		entityManager=emf.createEntityManager();
-		departments=getDepartments();
+	
 	}
 	public List<Department> getDepartments() {
 		TypedQuery<Department> q=entityManager.createQuery("from Department",Department.class);
@@ -35,14 +40,9 @@ public class DepartmentService {
 		return departments;
 	}
 	public void addDepartment(Department department) {
-		try {
-			utx.begin();
-			entityManager.persist(department);
-			utx.commit();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		departments.add(department);
+		entityManager.getTransaction().begin();
+		entityManager.merge(department);
+		entityManager.getTransaction().commit();
 	}
 	public void deleteDepartment(Department department) {
 		departments.remove(department);

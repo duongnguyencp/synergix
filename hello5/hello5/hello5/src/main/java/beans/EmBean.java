@@ -1,4 +1,7 @@
-package util;
+package beans;
+
+import java.io.Serializable;
+import java.util.Random;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
@@ -6,18 +9,16 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-
 import services.CreateEM;
-@Named
-@RequestScoped
-public class JPAUtil {
-	private static final EntityManagerFactory entityMangerFacetory = buildEntityManagerFactory();
-	  
-	public static EntityManagerFactory buildEntityManagerFactory() {
-        try {
-            // Create the SessionFactory from hibernate.cfg.xml
+import services.RandomQualifier;
+
+
+public class EmBean implements Serializable {
+	private static final long serialVersionUID=-7698506329160109476L;
+	@Produces @CreateEM 
+    public EntityManagerFactory geEntityManagerFactory() {
+    	try {
+        
             return Persistence.createEntityManagerFactory("persistence");
         }
         catch (Throwable ex) {
@@ -26,5 +27,4 @@ public class JPAUtil {
             throw new ExceptionInInitializerError(ex);
         }
     }
-   
 }

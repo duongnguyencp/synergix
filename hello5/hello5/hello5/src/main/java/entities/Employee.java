@@ -30,7 +30,7 @@ public class Employee implements Serializable {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 	@Column(name = "name")
 	private String name;
 	@Column(name = "age")
@@ -39,13 +39,13 @@ public class Employee implements Serializable {
 	private String gender;
 	@Column(name = "DOB")
 	private Date DOB;
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "department_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="department_id")
 	private Department department;
 	@Transient
+	
 	private boolean canEdit;
 	@Version
-	@Transient
 	private Integer version;
 
 	public Employee() {
@@ -99,7 +99,7 @@ public class Employee implements Serializable {
 		DOB = dOB;
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -110,11 +110,9 @@ public class Employee implements Serializable {
 	public Department getDepartment() {
 		return department;
 	}
-
 	public void setDepartment(Department department) {
 		this.department = department;
 	}
-
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
@@ -133,5 +131,11 @@ public class Employee implements Serializable {
 	@Override
 	public int hashCode() {
 		return 31;
+	}
+	public Integer getVersion() {
+		return version;
+	}
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 }

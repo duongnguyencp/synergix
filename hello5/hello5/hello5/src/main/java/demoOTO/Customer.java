@@ -1,5 +1,6 @@
 package demoOTO;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,7 +17,7 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String name;
-	@OneToOne(mappedBy = "customer")
+	@OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
 	CustomerRecord customerRecord;
 	public CustomerRecord getCustomerRecord() {
 		return customerRecord;
@@ -41,9 +42,8 @@ public class Customer {
 		p.setName("Customer");
 		CustomerRecord customerRecord=new CustomerRecord();
 		customerRecord.setName("Customer Record");
-		p.setCustomerRecord(customerRecord);
 		customerRecord.setCustomer(p);
-		entityManager.persist(customerRecord);
+		p.setCustomerRecord(customerRecord);
 		entityManager.persist(p);
 		entityManager.getTransaction().commit();
 	}

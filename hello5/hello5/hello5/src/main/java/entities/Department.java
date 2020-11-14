@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,17 +29,20 @@ public class Department  implements Serializable{
 	@Id 
 	@Column (name="id")
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 	@Column(name = "department_code")
 	private String code;
 	@Column(name = "department_name")
 	private String name;
 	@Column(name = "department_description")
 	private String description;
-	@OneToMany(mappedBy="department",cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="department")
     private List<Employee> employees;
 	@Transient
 	private boolean canEdit;
+	@Version
+	@Transient
+	private Integer version;
 	public Department() {
 		employees=new ArrayList<Employee>();
 	}
@@ -56,7 +60,7 @@ public class Department  implements Serializable{
 		return this.canEdit;
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 	public void setId(int id) {
@@ -103,6 +107,14 @@ public class Department  implements Serializable{
 	@Override
 	public int hashCode() {
 		return (name!=null)?(getClass().hashCode()+100):super.hashCode();
+	}
+	public void addEmployee(Employee employee) {
+		employees.add(employee);
+		employee.setDepartment(this);
+	}
+	public void removeEmployee(Employee employee) {
+		employees.remove(employee);
+		employee.setDepartment(null);
 	}
 }
 	

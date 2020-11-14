@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.faces.bean.SessionScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Qualifier;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,56 +27,57 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
+import javax.transaction.Transactional;
 import javax.transaction.UserTransaction;
 
-import dao.DepartmentDAO;
-import dao.EmployeeDAO;
 import entities.Department;
 import entities.Department_;
 import entities.Employee;
 import entities.Employee_;
 import util.JPAUtil;
-@EmployeeQualifier
 @RequestScoped
-public class EmployeeService implements CrudService{
+@Transactional
+@Named
+public class EmployeeService  {
 	private static  List<Employee> employees;
-	private EmployeeDAO employeeDAO;
-	EntityManagerFactory emf=JPAUtil.geEntityManagerFactory();
-	
-	private  EntityManager entityManager;
-	@Resource
-	UserTransaction utx;
+	@Inject 
+	@CreateEM
+	private EntityManagerFactory entityManagerFactory;
+	private EntityManager entityManager;
+	@PostConstruct
+	public void init() {
+		
+	}
 	public EmployeeService() {
-		entityManager=emf.createEntityManager();
-		employees=getEmployees();
+
 	}
 	public void shutdown() {
-		entityManager.close();
-		JPAUtil.shutdown();
+		
 	}
 	public List<Employee> getEmployees() {
+		entityManager=entityManagerFactory.createEntityManager();
 		TypedQuery<Employee> q=entityManager.createQuery("from Employee",Employee.class);
 		employees=q.getResultList();
 		return employees;
 	}
+	public String getStateEntityD(Department o) {
+		if(o.getId()==null) 
+			return "TRAINSIENT";
+		return "DETACH";
+	}
+	public String getStateEntityE(Employee o) {
+		if(o.getId()==null) 
+			return "TRAINSIENT";
+		return "DETACH";
+	}
 	public void addEmployee(Employee employee) {
-		try {
-			utx.begin();
-			entityManager.persist(employee);
-			utx.commit();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		
-		employees.add(employee);
+		entityManager.merge(employee);
 		
 	}
 	public void deleteEmployee(Employee employee) {
 		employees.remove(employee);
-		entityManager.getTransaction().begin();
 		Employee employee2=entityManager.find(Employee.class, employee.getId());
 		entityManager.remove(employee2);
-		entityManager.getTransaction().commit();
 	}
 
 	public void editEmployee(Employee employee) {
@@ -95,12 +99,8 @@ public class EmployeeService implements CrudService{
 			System.out.println();
 		}
 		entityManager.getTransaction().begin();
-		Employee employee2=entityManager.find(Employee.class, employee.getId());
-		employee2.setAge(employee.getAge());
-		employee2.setDepartment(employee.getDepartment());
-		employee2.setDOB(employee.getDOB());
-		employee2.setGender(employee.getGender());
-		employee2.setName(employee.getName());
+		getStateEntityE(employee);
+		entityManager.merge(employee);
 		entityManager.getTransaction().commit();
 		cancelEdit(employee);
 	}
@@ -157,61 +157,6 @@ public class EmployeeService implements CrudService{
 		query.setParameter("name", name);
 		return query.getResultList();
 	}
-	public void testEntityState() {
-		entityManager.getTransaction().begin();
-		Employee e1=entityManager.find(Employee.class, 4);
-		entityManager.detach(e1);
-		Employee e2=entityManager.merge(e1);
-		entityManager.merge(e1);
-		System.out.println();
-		entityManager.flush();
-		entityManager.getTransaction().commit();
-	}
-	public void testEntityState3() {
-		entityManager.getTransaction().begin();
-		Employee e1=entityManager.find(Employee.class, 4);
-		while(true) {
-			e1.setAge(12);
-			entityManager.flush();
-			
-		}
-		
-	}
-	public void testEntityState2() {
-		entityManager.getTransaction().begin();
-		
-		Department d=entityManager.find(Department.class, 1);
-		entityManager.detach(d);
-		Department e=entityManager.merge(d);
-		e.setName("training1");
-		List<Employee> lsEmployee=e.getEmployees();
-		System.out.println(lsEmployee);
-		lsEmployee.get(0).setName("Jack dep trai");
-		entityManager.merge(e);
-		entityManager.flush();
-		entityManager.getTransaction().commit();
-		
-		
-	}
-	public static void main(String[] args) {
-		EmployeeService employeeService=new EmployeeService();
-		//System.out.println(employeeService.getEmployeeNamedQuery("thomas1"));
-		//System.out.println(employeeService.getEmployeeCriteriaQuery("thomas1"));
-//		Department department=new Department();
-//		department.setId(2);
-//		System.out.println(employeeService.getEmployeeByDepartment(department));
-//		Employee emp=new Employee();
-//		emp.setId(2);
-//		emp.setName("Jack");
-//		emp.setDOB(new Date());
-//		
-//		emp.setDepartment(department);
-//		emp.setGender("Male");
-//		employeeService.updateEmployeeNamedQuery(emp);
-		employeeService.testEntityState();
-//		Employee e=new Employee();
-//		e.setAge(12);
-//		employeeService.addEmployee(e);
-		
-	}
+	
+	
 }
